@@ -57,3 +57,7 @@ h1 {
     font-size: 1.2em;
     font-weight: bold;
 }
+
+.cell.remove-highlight {
+    background-color: lightyellow; /* 淡色提示 */
+}

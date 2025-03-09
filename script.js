@@ -60,10 +60,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const pieceArray = (player === 'X') ? xPieces : oPieces;
         pieceArray.push(index);
 
+        if (pieceArray.length >= 3) {
+            highlightOldestPieceToRemove(player);
+        }
+
         if (pieceArray.length > 3) {
             removeOldestPiece(player);
         }
     }
+
+    function highlightOldestPieceToRemove(player) {
+        clearHighlights(); // Clear any existing highlights
+        const pieceArray = (player === 'X') ? xPieces : oPieces;
+        if (pieceArray.length >= 3) {
+            const oldestPieceIndex = pieceArray[0]; // Get the oldest piece index
+            cells.forEach(cell => {
+                if (parseInt(cell.dataset.index) === oldestPieceIndex) {
+                    cell.classList.add('remove-highlight'); // Add highlight class
+                }
+            });
+        }
+    }
+
+    function clearHighlights() {
+        cells.forEach(cell => {
+            cell.classList.remove('remove-highlight'); // Remove highlight class
+        });
+    }
+
 
     function removeOldestPiece(player) {
         const pieceArray = (player === 'X') ? xPieces : oPieces;
@@ -72,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cells.forEach(cell => {
             if (parseInt(cell.dataset.index) === oldestPieceIndex) {
-                cell.classList.remove((player === 'X' ? 'x' : 'o')); // Remove visual
+                cell.classList.remove((player === 'X' ? 'x' : 'o')); // Remove piece visual
+                cell.classList.remove('remove-highlight'); // Remove highlight
             }
         });
     }
@@ -91,7 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function switchPlayer() {
+        clearHighlights(); // Clear previous highlights
         currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        highlightOldestPieceToRemove(currentPlayer); // Highlight for the next player
     }
 
     function updateMessage(message) {
