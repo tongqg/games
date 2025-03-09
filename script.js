@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkDraw() {
-        return moves >= 9; // Draw if all cells are filled and no winner
+        return false; // 平局 removed
     }
 
     function switchPlayer() {
