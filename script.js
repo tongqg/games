@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return executeComputerMove(threatPositions[0]);
         }
 
-        // Updated heuristic: center first, then threats, then corners, then others
+        // Updated heuristic: center first, then threats, then corners, then edges
         const movePriority = [4, ...threatPositions, 0, 2, 6, 8, 1, 3, 5, 7];
         for (const i of movePriority) {
             if (board[i] === '') {
@@ -223,22 +223,48 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkPotentialThreats() {
         const threats = new Set();
         
-        // Simulate removal of each existing X piece
-        xPieces.forEach((index) => {
-            const simulatedBoard = [...board];
-            simulatedBoard[index] = ''; // Remove this X piece
-            
-            // Check what moves would create wins for X in this state
-            for (let i = 0; i < simulatedBoard.length; i++) {
-                if (simulatedBoard[i] === '') {
-                    const testBoard = [...simulatedBoard];
-                    testBoard[i] = 'X';
-                    if (checkWinForMinimax('X', testBoard)) {
-                        threats.add(i); // This position needs to be blocked
+        // Consider all possible board states after piece removal
+        const simulateRemovalScenarios = (pieces) => {
+            pieces.forEach((index) => {
+                const simulatedBoard = [...board];
+                simulatedBoard[index] = '';
+                
+                // Check immediate threats in this state
+                for (let i = 0; i < simulatedBoard.length; i++) {
+                    if (simulatedBoard[i] === '') {
+                        const testBoard = [...simulatedBoard];
+                        testBoard[i] = 'X';
+                        if (checkWinForMinimax('X', testBoard)) {
+                            threats.add(i);
+                        }
                     }
                 }
-            }
-        });
+
+                // Check secondary threats (if opponent removes another piece)
+                pieces.filter(p => p !== index).forEach((secondIndex) => {
+                    const deeperSimulatedBoard = [...simulatedBoard];
+                    deeperSimulatedBoard[secondIndex] = '';
+                    
+                    for (let i = 0; i < deeperSimulatedBoard.length; i++) {
+                        if (deeperSimulatedBoard[i] === '') {
+                            const testBoard = [...deeperSimulatedBoard];
+                            testBoard[i] = 'X';
+                            if (checkWinForMinimax('X', testBoard)) {
+                                threats.add(i);
+                            }
+                        }
+                    }
+                });
+            });
+        };
+
+        simulateRemovalScenarios(xPieces);
+        simulateRemovalScenarios(oPieces); // Also check our own pieces' removal scenarios
+        
+        // Add center position as high priority defensive spot
+        if (board[4] === '') {
+            threats.add(4);
+        }
 
         return Array.from(threats);
     }
