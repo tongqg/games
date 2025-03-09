@@ -8,6 +8,12 @@
 <body>
     <h1>井字棋</h1>
     <div class="game-container">
+        <div class="mode-selection">
+            <select id="mode-select">
+                <option value="single">单人模式</option>
+                <option value="two">双人模式</option>
+            </select>
+        </div>
         <div class="game-board" id="game-board">
             <div class="cell" data-index="0"></div>
             <div class="cell" data-index="1"></div>
@@ -21,12 +27,6 @@
         </div>
         <button id="restart-button">Restart Game</button>
         <div class="message" id="message"></div>
-        <div class="mode-selection">
-            <select id="mode-select">
-                <option value="single">单人模式</option>
-                <option value="two">双人模式</option>
-            </select>
-        </div>
     </div>
     <script src="script.js"></script>
 </body>

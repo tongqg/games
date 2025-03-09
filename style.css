@@ -22,9 +22,14 @@ h1 {
 }
 
 .mode-selection {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+    margin-bottom: 20px; /* Add margin to separate from game title */
+}
+
+#mode-select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
 }
 
 
