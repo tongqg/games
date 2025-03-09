@@ -3,8 +3,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    justify-content: center; /* 恢复居中 */
+    height: auto; /* 移除固定高度，允许内容扩展 */
     margin: 0;
     background-color: #f0f0f0;
 }
@@ -16,13 +16,18 @@ h1 {
 .game-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* 保持居中对齐 */
     position: relative; /* 确保 mode-selection 相对于 game-container 定位 */
     width: 100%; /* 容器宽度占满body */
+    /* max-height: 90vh; 移除最大高度限制 */
+    /* overflow: auto;  移除滚动 */
 }
 
 .mode-selection {
     margin-bottom: 20px; /* Add margin to separate from game title */
+    display: flex; /* 使 mode-selection 成为 flex 容器 */
+    align-items: baseline; /* 垂直对齐方式改为基线对齐 */
+    gap: 10px; /* 按钮和选择框之间添加间距 */
 }
 
 #mode-select {
@@ -36,11 +41,13 @@ h1 {
 
 .game-board {
     display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
+    grid-template-columns: repeat(3, 1fr); /* 使用fr单位 */
+    grid-template-rows: repeat(3, 1fr); /* 使用fr单位 */
     gap: 10px;
-    margin-bottom: 20px;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+    /* margin-bottom: 20px; */
+    width: 90vmin; /* 使用vmin单位，使其更具响应性 */
+    height: 80vmin; /* 保持宽高一致，适应较小尺寸 */
 }
 
 #restart-button {
@@ -52,6 +59,8 @@ h1 {
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1); /* হালকা ছায়া */
+    margin-top: 20px; /* 将按钮移到棋盘下方 */
+    z-index: 10; /* 确保按钮在覆盖层之上 */
 }
 
 #restart-button:hover {
@@ -60,8 +69,8 @@ h1 {
 
 
 .cell {
-    width: 100px;
-    height: 100px;
+    /* width: 100px;  Remove fixed width */
+    /* height: 100px; Remove fixed height */
     background-color: #ddd;
     border: 2px solid #ccc;
     display: flex;
@@ -69,6 +78,7 @@ h1 {
     justify-content: center;
     font-size: 2em;
     cursor: pointer;
+    aspect-ratio: 1 / 1; /* 保持正方形比例 */
 }
 
 .cell:hover {
@@ -92,4 +102,24 @@ h1 {
 
 .cell.remove-highlight {
     background-color: lightyellow; /* 淡色提示 */
+}
+
+.game-message-overlay {
+    position: absolute;
+    top: 60%; /* 垂直方向居中 - 进一步向下调整 */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+    display: none; /* 初始状态隐藏 */
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: green;
+    transform: translateY(-50%); /* 垂直方向微调 */
+}
+
+.game-message-overlay.show {
+    display: flex; /* 游戏结束时显示 */
 }

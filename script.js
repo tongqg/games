@@ -219,7 +219,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateMessage(message) {
-        messageDisplay.textContent = message;
+        const overlay = document.getElementById('game-message-overlay');
+        const messageDisplay = document.getElementById('message');
+        if (message.includes('赢了') || message === '平局!') {
+            overlay.textContent = message;
+            overlay.classList.add('show'); // 显示覆盖层 for game end messages
+            messageDisplay.textContent = ''; // Clear original message area when overlay is shown
+        } else {
+            overlay.classList.remove('show'); // 确保覆盖层隐藏 for other messages
+            messageDisplay.textContent = message; // Display other messages in the original message area
+        }
     }
 
 
@@ -242,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.classList.remove('x', 'o', 'remove-highlight');
         });
         updateMessage(``);
+        const overlay = document.getElementById('game-message-overlay'); // Get overlay element
+        overlay.classList.remove('show'); // Ensure overlay is hidden on restart
         initGame(); // Re-initialize the game to attach event listeners
     }
 
