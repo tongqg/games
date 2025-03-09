@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    let gameMode = 'two-player'; // Default mode is two-player
+    let gameMode = 'single'; // Default mode is two-player
 
     function handleCellClick(clickedCellEvent) {
         const clickedCell = clickedCellEvent.target;
@@ -224,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     initGame();
+    updateMessage('单人模式');
 
     // Restart Button Functionality
     const restartButton = document.getElementById('restart-button');
