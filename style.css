@@ -17,6 +17,14 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative; /* 确保 mode-selection 相对于 game-container 定位 */
+    width: 100%; /* 容器宽度占满body */
+}
+
+.mode-selection {
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }
 
 
@@ -33,6 +41,16 @@ h1 {
 #restart-button {
     padding: 10px 20px; /* 恢复按钮padding */
     font-size: 1em; /* 恢复按钮字体 */
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1); /* হালকা ছায়া */
+}
+
+#restart-button:hover {
+    background-color: #45a049; /* Darker green on hover */
 }
 
 

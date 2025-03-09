@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switchPlayer();
 
-        if (gameMode === 'single-player' && currentPlayer === 'O') {
+        if (gameMode === 'single' && currentPlayer === 'O') {
             // Computer's turn
             setTimeout(computerMove, 500); // Delay computer move for better UX
         }
@@ -245,18 +245,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Mode Selection Buttons
-    const singlePlayerButton = document.getElementById('single-player-button');
-    const twoPlayerButton = document.getElementById('two-player-button');
+    const modeSelect = document.getElementById('mode-select');
 
-    singlePlayerButton.addEventListener('click', () => {
-        gameMode = 'single-player';
+    modeSelect.addEventListener('change', () => {
+        gameMode = modeSelect.value;
         restartGame();
-        updateMessage('单人模式');
-    });
-
-    twoPlayerButton.addEventListener('click', () => {
-        gameMode = 'two-player';
-        restartGame();
-        updateMessage('双人模式');
+        updateMessage(gameMode === 'single' ? '单人模式' : '双人模式');
     });
 });
