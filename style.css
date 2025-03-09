@@ -19,13 +19,22 @@ h1 {
     align-items: center;
 }
 
+
+
 .game-board {
     display: grid;
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
     gap: 10px;
     margin-bottom: 20px;
+    margin-bottom: 20px;
 }
+
+#restart-button {
+    padding: 10px 20px; /* 恢复按钮padding */
+    font-size: 1em; /* 恢复按钮字体 */
+}
+
 
 .cell {
     width: 100px;
