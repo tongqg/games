@@ -117,8 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkDraw() {
-        return false; // 平局 removed
-        return false; // 平局 removed
+        return false;
     }
 
     function switchPlayer() {
