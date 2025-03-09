@@ -41,12 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (checkWin()) {
             updateMessage(`${currentPlayer} 赢了!`);
             gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
             return;
         }
 
         if (checkDraw()) {
             updateMessage(`平局!`);
             gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
             return;
         }
 
@@ -54,7 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (gameMode === 'single' && currentPlayer === 'O') {
             // Computer's turn
-            setTimeout(computerMove, 500); // Delay computer move for better UX
+            document.getElementById('thinking-indicator').style.display = 'block';
+            setTimeout(computerMove, 700); // Slightly longer delay to show thinking state
         }
     }
 
@@ -129,18 +132,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function computerMove() {
         if (!gameActive) return;
 
-        let bestMove;
-        let bestScore = -Infinity;
-
+        // First check for immediate win
         for (let i = 0; i < board.length; i++) {
             if (board[i] === '') {
-                board[i] = 'O'; // Simulate computer placing 'O'
-                let score = minimax(board, 0, -Infinity, Infinity, false);
-                board[i] = ''; // Undo move
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMove = i;
+                const testBoard = [...board];
+                testBoard[i] = 'O';
+                if (checkWinForMinimax('O', testBoard)) {
+                    return executeComputerMove(i);
                 }
+            }
+        }
+
+        // Then block player win
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === '') {
+                const testBoard = [...board];
+                testBoard[i] = 'X';
+                if (checkWinForMinimax('X', testBoard)) {
+                    return executeComputerMove(i);
+                }
+            }
+        }
+
+        // Check potential threats after piece removal
+        const threatPositions = checkPotentialThreats();
+        if (threatPositions.length > 0) {
+            return executeComputerMove(threatPositions[0]);
+        }
+
+        // Updated heuristic: center first, then threats, then corners, then others
+        const movePriority = [4, ...threatPositions, 0, 2, 6, 8, 1, 3, 5, 7];
+        for (const i of movePriority) {
+            if (board[i] === '') {
+                return executeComputerMove(i);
             }
         }
 
@@ -151,67 +175,42 @@ document.addEventListener('DOMContentLoaded', () => {
         if (checkWin()) {
             updateMessage(`电脑 赢了!`);
             gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
             return;
         }
 
         if (checkDraw()) {
             updateMessage(`平局!`);
             gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
             return;
         }
 
         switchPlayer();
     }
 
-    function minimax(board, depth, alpha, beta, isMaximizingPlayer) {
-            let scores = {
-                'X': -10,
-                'O': 10,
-                'draw': 0
-            };
-    
-            if (checkWinForMinimax('O', board)) {
-                return scores['O'];
-            }
-            if (checkWinForMinimax('X', board)) {
-                return scores['X'];
-            }
-            if (isBoardFull(board)) {
-                return scores['draw'];
-            }
-    
-            if (isMaximizingPlayer) {
-                let bestScore = -Infinity;
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] === '') {
-                        board[i] = 'O';
-                        let score = minimax(board, depth + 1, alpha, beta, false);
-                        board[i] = '';
-                        bestScore = Math.max(score, bestScore);
-                        alpha = Math.max(alpha, bestScore); // Alpha-beta pruning line
-                        if (beta <= alpha) {         // Beta cut-off
-                            break;
-                        }
-                    }
-                }
-                return bestScore;
-            } else {
-                let bestScore = Infinity;
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] === '') {
-                        board[i] = 'X';
-                        let score = minimax(board, depth + 1, alpha, beta, true);
-                        board[i] = '';
-                        bestScore = Math.min(score, bestScore);
-                        beta = Math.min(beta, bestScore);  // Beta update
-                        if (beta <= alpha) {         // Alpha cut-off
-                            break;
-                        }
-                    }
-                }
-                return bestScore;
-            }
+    function executeComputerMove(index) {
+        const computerCell = cells[index];
+        placePiece(computerCell, index, 'O');
+        moves++;
+
+        if (checkWin()) {
+            updateMessage(`电脑 赢了!`);
+            gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
+            return;
         }
+
+        if (checkDraw()) {
+            updateMessage(`平局!`);
+            gameActive = false;
+            document.getElementById('thinking-indicator').style.display = 'none'; // Hide thinking indicator
+            return;
+        }
+
+        switchPlayer();
+        document.getElementById('thinking-indicator').style.display = 'none';
+    }
 
     function checkWinForMinimax(player, board) {
         return winningConditions.some(condition => {
@@ -219,6 +218,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 return board[index] === player;
             });
         });
+    }
+
+    function checkPotentialThreats() {
+        const threats = new Set();
+        
+        // Simulate removal of each existing X piece
+        xPieces.forEach((index) => {
+            const simulatedBoard = [...board];
+            simulatedBoard[index] = ''; // Remove this X piece
+            
+            // Check what moves would create wins for X in this state
+            for (let i = 0; i < simulatedBoard.length; i++) {
+                if (simulatedBoard[i] === '') {
+                    const testBoard = [...simulatedBoard];
+                    testBoard[i] = 'X';
+                    if (checkWinForMinimax('X', testBoard)) {
+                        threats.add(i); // This position needs to be blocked
+                    }
+                }
+            }
+        });
+
+        return Array.from(threats);
     }
 
     function isBoardFull(board) {
