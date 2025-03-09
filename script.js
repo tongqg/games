@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < board.length; i++) {
             if (board[i] === '') {
                 board[i] = 'O'; // Simulate computer placing 'O'
-                let score = minimax(board, 0, false);
+                let score = minimax(board, 0, -Infinity, Infinity, false);
                 board[i] = ''; // Undo move
                 if (score > bestScore) {
                     bestScore = score;
@@ -164,47 +164,55 @@ document.addEventListener('DOMContentLoaded', () => {
         switchPlayer();
     }
 
-    function minimax(board, depth, isMaximizingPlayer) {
-        let scores = {
-            'X': -10,
-            'O': 10,
-            'draw': 0
-        };
-
-        if (checkWinForMinimax('O', board)) {
-            return scores['O'];
-        }
-        if (checkWinForMinimax('X', board)) {
-            return scores['X'];
-        }
-        if (isBoardFull(board)) {
-            return scores['draw'];
-        }
-
-        if (isMaximizingPlayer) {
-            let bestScore = -Infinity;
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] === '') {
-                    board[i] = 'O';
-                    let score = minimax(board, depth + 1, false);
-                    board[i] = '';
-                    bestScore = Math.max(score, bestScore);
-                }
+    function minimax(board, depth, alpha, beta, isMaximizingPlayer) {
+            let scores = {
+                'X': -10,
+                'O': 10,
+                'draw': 0
+            };
+    
+            if (checkWinForMinimax('O', board)) {
+                return scores['O'];
             }
-            return bestScore;
-        } else {
-            let bestScore = Infinity;
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] === '') {
-                    board[i] = 'X';
-                    let score = minimax(board, depth + 1, true);
-                    board[i] = '';
-                    bestScore = Math.min(score, bestScore);
-                }
+            if (checkWinForMinimax('X', board)) {
+                return scores['X'];
             }
-            return bestScore;
+            if (isBoardFull(board)) {
+                return scores['draw'];
+            }
+    
+            if (isMaximizingPlayer) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';
+                        let score = minimax(board, depth + 1, alpha, beta, false);
+                        board[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                        alpha = Math.max(alpha, bestScore); // Alpha-beta pruning line
+                        if (beta <= alpha) {         // Beta cut-off
+                            break;
+                        }
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'X';
+                        let score = minimax(board, depth + 1, alpha, beta, true);
+                        board[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                        beta = Math.min(beta, bestScore);  // Beta update
+                        if (beta <= alpha) {         // Alpha cut-off
+                            break;
+                        }
+                    }
+                }
+                return bestScore;
+            }
         }
-    }
 
     function checkWinForMinimax(player, board) {
         return winningConditions.some(condition => {
