@@ -1,0 +1,94 @@
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #27ae60;
+    --text-color: #34495e;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.main-header {
+    text-align: center;
+    padding: 2rem 0;
+    background-color: var(--primary-color);
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.game-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+}
+
+.game-thumbnail {
+    height: 200px;
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background-size: cover;
+    background-position: center;
+}
+
+.snake-thumb {
+    background-image: url('../snake/style.css'); /* 临时占位 */
+}
+
+.tetris-thumb {
+    background-image: url('../tetris/style.css'); /* 临时占位 */
+}
+
+.tictactoe-thumb {
+    background-image: url('../tic-tac-toe/style.css'); /* 临时占位 */
+}
+
+.game-card h2 {
+    color: var(--primary-color);
+    margin: 0 0 1rem;
+}
+
+.game-card p {
+    margin: 0 0 1.5rem;
+    min-height: 60px;
+}
+
+.play-button {
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.play-button:hover {
+    background-color: #219a52;
+}
+
+@media (max-width: 768px) {
+    .game-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,35 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>井字棋游戏</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经典小游戏合集</title>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <h1>井字棋</h1>
-    <div class="game-container">
-        <div class="mode-selection">
-            <select id="mode-select">
-                <option value="single">单人模式</option>
-                <option value="two">双人模式</option>
-            </select>
-        <button id="restart-button">新游戏</button>
+    <header class="main-header">
+        <h1>HTML5小游戏合集</h1>
+    </header>
+    
+    <div class="game-grid">
+        <div class="game-card">
+            <div class="game-thumbnail snake-thumb"></div>
+            <h2>贪吃蛇</h2>
+            <p>经典街机游戏，收集食物增长蛇身</p>
+            <a href="snake/index.html" class="play-button">开始游戏</a>
         </div>
-        <div class="game-board" id="game-board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+
+        <div class="game-card">
+            <div class="game-thumbnail tetris-thumb"></div>
+            <h2>俄罗斯方块</h2>
+            <p>排列组合下落方块完成消除</p>
+            <a href="tetris/tetris.html" class="play-button">开始游戏</a>
         </div>
-        <div class="game-message-overlay" id="game-message-overlay"></div>
-        <div id="thinking-indicator"></div>
+
+        <div class="game-card">
+            <div class="game-thumbnail tictactoe-thumb"></div>
+            <h2>井字棋</h2>
+            <p>双人对战的经典三连棋游戏</p>
+            <a href="tic-tac-toe/index.html" class="play-button">开始游戏</a>
+        </div>
+
+        <div class="game-card">
+            <div class="game-thumbnail word-thumb"></div>
+            <h2>单词拼写</h2>
+            <p>通过填空学习英语单词拼写</p>
+            <a href="EnglishWord/index.html" class="play-button">开始游戏</a>
+        </div>
+
+        <div class="game-card">
+            <div class="game-thumbnail flappy-thumb"></div>
+            <h2>像素鸟</h2>
+            <p>操控小鸟穿越障碍管道</p>
+            <a href="flappy/index.html" class="play-button">开始游戏</a>
+        </div>
     </div>
-    <div class="message" id="message"></div>
-    <script src="script.js"></script>
 </body>
 </html>
