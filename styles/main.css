@@ -63,6 +63,20 @@ body {
     background-image: url('../tic-tac-toe/style.css'); /* 临时占位 */
 }
 
+.steampunk-thumb {
+    background: linear-gradient(45deg, #3e322b, #857670);
+    position: relative;
+}
+
+.steampunk-thumb::after {
+    content: "⚙️";
+    font-size: 48px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .game-card h2 {
     color: var(--primary-color);
     margin: 0 0 1rem;
