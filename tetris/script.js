@@ -18,6 +18,7 @@ let nextBlock = null;
 let score = 0;
 let level = 1;
 let gameLoop = null;
+let isFastMode = false;
 
 const canvas = document.getElementById('game-board');
 const ctx = canvas.getContext('2d');
@@ -165,6 +166,12 @@ document.addEventListener('keydown', (e) => {
     if (!currentBlock) return;
 
     switch(e.key) {
+        case 'c':
+        case 'C':
+            isFastMode = true;
+            clearInterval(gameLoop);
+            gameLoop = setInterval(update, isFastMode ? 200 : 1000 - (level-1)*50);
+            break;
         case 'ArrowLeft':
             if (isValidMove(currentPos.x - 1, currentPos.y, currentBlock.shape)) {
                 currentPos.x--;
@@ -177,10 +184,14 @@ document.addEventListener('keydown', (e) => {
                 drawBoard();
             }
             break;
-        case 'ArrowDown':
-            update();
-            break;
-        case 'ArrowUp':
+        // case 'ArrowDown':
+        //     update();
+        //     break;
+        // case 'ArrowUp':
+        //     rotateBlock();
+        //     break;
+        case 'x':
+        case 'X':
             rotateBlock();
             break;
         case ' ':
@@ -188,6 +199,25 @@ document.addEventListener('keydown', (e) => {
                 currentPos.y++;
             }
             update();
+            break;
+        case 'c':
+        case 'C':
+            isFastMode = !isFastMode;
+            clearInterval(gameLoop);
+            gameLoop = setInterval(update, isFastMode ? 200 : 1000 - (level-1)*50);
+            break;
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (!currentBlock) return;
+
+    switch(e.key) {
+        case 'c':
+        case 'C':
+            isFastMode = false;
+            clearInterval(gameLoop);
+            gameLoop = setInterval(update, isFastMode ? 200 : 1000 - (level-1)*50);
             break;
     }
 });
@@ -204,7 +234,7 @@ startBtn.addEventListener('click', () => {
     currentPos = {x: Math.floor(BOARD_WIDTH/2) - 1, y: 0};
     
     if (gameLoop) clearInterval(gameLoop);
-    gameLoop = setInterval(update, 1000 - (level-1)*50);
+    gameLoop = setInterval(update, isFastMode ? 200 : 1000 - (level-1)*50);
     
     drawNextBlock();
     drawBoard();
