@@ -42,53 +42,19 @@ body {
     transform: translateY(-5px);
 }
 
-.game-thumbnail {
-    height: 200px;
-    background-color: #ecf0f1;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    background-size: cover;
-    background-position: center;
-}
-
-.snake-thumb {
-    background-image: url('../snake/style.css'); /* 临时占位 */
-}
-
-.tetris-thumb {
-    background-image: url('../tetris/style.css'); /* 临时占位 */
-}
-
-.tictactoe-thumb {
-    background-image: url('../tic-tac-toe/style.css'); /* 临时占位 */
-}
-
-.steampunk-thumb {
-    background: linear-gradient(45deg, #3e322b, #857670);
-    position: relative;
-}
-
-.steampunk-thumb::after {
-    content: "⚙️";
-    font-size: 48px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.tetris3d-thumb {
-    background: linear-gradient(45deg, #3498db, #2c3e50);
-    position: relative;
-}
-
-.tetris3d-thumb::after {
-    content: "🧊";
-    font-size: 48px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* Styles for game icons */
+i.game-thumbnail {
+    display: block;       /* Ensure proper block layout */
+    font-size: 80px;      /* Adjust icon size */
+    width: 150px;         /* Container width */
+    height: 150px;        /* Container height */
+    line-height: 150px;   /* Vertically center icon */
+    text-align: center;   /* Horizontally center icon */
+    background-color: #eee; /* Background color for the container */
+    color: var(--primary-color); /* Icon color */
+    margin: 0 auto 1rem;  /* Center horizontally, add space below */
+    border-radius: 8px;   /* Rounded corners for the container */
+    border: 1px solid #ddd; /* Optional: subtle border */
 }
 
 .game-card h2 {

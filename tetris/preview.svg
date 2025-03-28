@@ -1,0 +1,36 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Game board background -->
+    <rect x="200" y="50" width="300" height="600" fill="#000000" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <!-- Some blocks on the board -->
+    <rect x="230" y="530" width="30" height="30" fill="#FF0000"/>
+    <rect x="260" y="530" width="30" height="30" fill="#FF0000"/>
+    <rect x="290" y="530" width="30" height="30" fill="#FF0000"/>
+    <rect x="320" y="530" width="30" height="30" fill="#FF0000"/>
+    
+    <rect x="350" y="500" width="30" height="30" fill="#00FF00"/>
+    <rect x="350" y="470" width="30" height="30" fill="#00FF00"/>
+    <rect x="320" y="470" width="30" height="30" fill="#00FF00"/>
+    <rect x="290" y="470" width="30" height="30" fill="#00FF00"/>
+    
+    <!-- Current falling block (T shape) -->
+    <rect x="320" y="200" width="30" height="30" fill="#0000FF"/>
+    <rect x="290" y="200" width="30" height="30" fill="#0000FF"/>
+    <rect x="350" y="200" width="30" height="30" fill="#0000FF"/>
+    <rect x="320" y="170" width="30" height="30" fill="#0000FF"/>
+    
+    <!-- Next block preview area -->
+    <rect x="550" y="150" width="100" height="100" fill="#000000" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="570" y="170" width="30" height="30" fill="#FF00FF"/>
+    <rect x="600" y="170" width="30" height="30" fill="#FF00FF"/>
+    <rect x="570" y="200" width="30" height="30" fill="#FF00FF"/>
+    <rect x="600" y="200" width="30" height="30" fill="#FF00FF"/>
+    
+    <!-- Score and level -->
+    <rect x="550" y="300" width="200" height="80" rx="5" fill="#000000" opacity="0.7"/>
+    <text x="650" y="330" text-anchor="middle" font-family="Arial" font-size="20" fill="#FFFFFF">得分: 0</text>
+    <text x="650" y="360" text-anchor="middle" font-family="Arial" font-size="20" fill="#FFFFFF">等级: 1</text>
+    
+    <!-- Game title -->
+    <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="#FFFFFF">经典俄罗斯方块</text>
+</svg>

@@ -1,0 +1,24 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    background-color: #f0f0f0;
+    font-family: sans-serif;
+}
+
+h1 {
+    color: #333;
+}
+
+canvas {
+    border: 1px solid black;
+    background-color: #ddd;
+}
+
+#startButton {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-top: 20px; /* Changed from margin-bottom */
+}

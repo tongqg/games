@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    font-family: sans-serif;
+    background-color: #f0f0f0; /* Keep a background for the page itself */
+    display: flex; /* Use flex to center the title if needed */
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    position: absolute; /* Position title over the canvas */
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #333;
+    z-index: 1; /* Ensure title is above the canvas */
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+    padding: 5px 15px;
+    border-radius: 5px;
+}
+
+/* Remove specific canvas styling as Three.js manages it */
+/*
+canvas {
+    border: 1px solid black;
+    background-color: #87CEEB;
+}
+*/

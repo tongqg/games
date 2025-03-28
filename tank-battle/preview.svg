@@ -1,0 +1,31 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Battlefield background -->
+    <rect width="800" height="600" fill="#228B22"/>
+    
+    <!-- Player tank (green) -->
+    <rect x="380" y="550" width="40" height="40" fill="#00FF00"/>
+    <rect x="390" y="530" width="20" height="20" fill="#A9A9A9"/>
+    <rect x="398" y="510" width="4" height="15" fill="#A9A9A9"/>
+    
+    <!-- Enemy tanks (blue) -->
+    <rect x="200" y="100" width="40" height="40" fill="#0000FF"/>
+    <rect x="210" y="140" width="20" height="20" fill="#A9A9A9"/>
+    <rect x="218" y="160" width="4" height="15" fill="#A9A9A9"/>
+    
+    <rect x="500" y="150" width="40" height="40" fill="#0000FF"/>
+    <rect x="510" y="190" width="20" height="20" fill="#A9A9A9"/>
+    <rect x="518" y="210" width="4" height="15" fill="#A9A9A9"/>
+    
+    <!-- Bullets -->
+    <circle cx="400" cy="500" r="3" fill="#FF0000"/>
+    <circle cx="220" cy="200" r="3" fill="#800080"/>
+    <circle cx="520" cy="250" r="3" fill="#800080"/>
+    
+    <!-- Score and level -->
+    <rect x="10" y="10" width="200" height="50" rx="5" fill="#000000" opacity="0.7"/>
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="#FFFFFF">Score: 0</text>
+    <text x="20" y="50" font-family="Arial" font-size="16" fill="#FFFFFF">Level: 1</text>
+    
+    <!-- Game title -->
+    <text x="400" y="50" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="#FFFFFF">Tank Battle</text>
+</svg>
