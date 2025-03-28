@@ -1,34 +1,12 @@
-<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-    <!-- Background -->
-    <rect width="800" height="600" fill="#f0f0f0"/>
-    
-    <!-- Game boundaries -->
-    <rect x="0" y="0" width="800" height="20" fill="#333"/>
-    <rect x="0" y="580" width="800" height="20" fill="#333"/>
-    <rect x="0" y="0" width="20" height="600" fill="#333"/>
-    <rect x="780" y="0" width="20" height="600" fill="#333"/>
-    
-    <!-- Platforms -->
-    <rect x="100" y="300" width="200" height="20" fill="#666" rx="5"/>
-    <rect x="500" y="400" width="150" height="20" fill="#666" rx="5"/>
-    <rect x="300" y="200" width="100" height="20" fill="#666" rx="5"/>
-    
-    <!-- Ball -->
-    <circle cx="400" cy="100" r="25" fill="#F35e66"/>
-    
-    <!-- Hole -->
-    <circle cx="700" cy="550" r="35" fill="#4CAF50" fill-opacity="0.5"/>
-    
-    <!-- Physics indicators -->
-    <path d="M400,125 L400,175" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
-    <text x="380" y="160" font-family="Arial" font-size="14">重力</text>
-    
-    <!-- Game title -->
-    <text x="400" y="50" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">物理弹球游戏</text>
-    
-    <defs>
-        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L6,3 z" fill="#000"/>
-        </marker>
-    </defs>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100" height="100" fill="#E0E0E0"/>
+
+  <!-- Simple flat design for Ball Physics -->
+  <circle cx="40" cy="45" r="15" fill="#4285F4"/> <!-- Blue ball -->
+  <circle cx="60" cy="55" r="15" fill="#34A853"/> <!-- Green ball -->
+
+  <!-- Optional: Simple shadow/highlight for depth -->
+  <circle cx="40" cy="45" r="13" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="60" cy="55" r="13" fill="rgba(0,0,0,0.1)"/>
 </svg>

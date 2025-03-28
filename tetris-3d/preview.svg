@@ -1,0 +1,28 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100" height="100" fill="#1A1A1A"/> <!-- Very dark background -->
+
+  <!-- Simple pseudo-3D Tetris blocks -->
+  <!-- L-Block (Orange) - Front faces -->
+  <rect x="30" y="50" width="10" height="10" fill="#FFA500"/>
+  <rect x="30" y="60" width="10" height="10" fill="#FFA500"/>
+  <rect x="30" y="70" width="10" height="10" fill="#FFA500"/>
+  <rect x="40" y="70" width="10" height="10" fill="#FFA500"/>
+  <!-- L-Block (Orange) - Side/Top faces (darker shade) -->
+  <polygon points="30,50 35,45 45,45 40,50" fill="#E69500"/> <!-- Top of top block -->
+  <polygon points="40,70 45,65 45,75 40,80" fill="#E69500"/> <!-- Side of bottom-right block -->
+  <polygon points="40,70 50,70 55,65 45,65" fill="#E69500"/> <!-- Top of bottom-right block -->
+
+
+  <!-- T-Block (Purple) - Front faces -->
+  <rect x="60" y="40" width="10" height="10" fill="#800080"/>
+  <rect x="50" y="50" width="10" height="10" fill="#800080"/>
+  <rect x="60" y="50" width="10" height="10" fill="#800080"/>
+  <rect x="70" y="50" width="10" height="10" fill="#800080"/>
+  <!-- T-Block (Purple) - Side/Top faces (darker shade) -->
+  <polygon points="60,40 65,35 75,35 70,40" fill="#660066"/> <!-- Top of top block -->
+  <polygon points="70,50 75,45 75,55 70,60" fill="#660066"/> <!-- Side of right block -->
+  <polygon points="50,50 55,45 65,45 60,50" fill="#660066"/> <!-- Top of middle block -->
+  <polygon points="70,50 80,50 85,45 75,45" fill="#660066"/> <!-- Top of right block -->
+
+</svg>

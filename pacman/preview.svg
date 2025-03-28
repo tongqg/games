@@ -1,38 +1,11 @@
-<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-    <!-- Maze background -->
-    <rect width="800" height="600" fill="#000000"/>
-    
-    <!-- Maze walls -->
-    <path d="M50,50 H750 V100 H50 V150 H750 V200 H50 V250 H750 V300 H50 V350 H750 V400 H50 V450 H750 V500 H50 V550 H750" 
-          stroke="#0000FF" stroke-width="10" fill="none"/>
-    <path d="M50,50 V550 M750,50 V550" stroke="#0000FF" stroke-width="10" fill="none"/>
-    
-    <!-- Dots -->
-    <circle cx="100" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="200" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="300" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="400" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="500" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="600" cy="100" r="5" fill="#FFFFFF"/>
-    <circle cx="700" cy="100" r="5" fill="#FFFFFF"/>
-    
-    <!-- Power pellets -->
-    <circle cx="150" cy="150" r="10" fill="#FFFFFF"/>
-    <circle cx="650" cy="150" r="10" fill="#FFFFFF"/>
-    
-    <!-- Pacman -->
-    <path d="M400,300 A50,50 0 0 1 450,350 L400,350 Z" fill="#FFFF00"/>
-    
-    <!-- Ghosts -->
-    <path d="M200,300 A25,25 0 0 1 250,300 V350 H200 Z" fill="#FF0000"/> <!-- Blinky -->
-    <path d="M300,300 A25,25 0 0 1 350,300 V350 H300 Z" fill="#FFC0CB"/> <!-- Pinky -->
-    <path d="M500,300 A25,25 0 0 1 550,300 V350 H500 Z" fill="#00FFFF"/> <!-- Inky -->
-    <path d="M600,300 A25,25 0 0 1 650,300 V350 H600 Z" fill="#FFA500"/> <!-- Clyde -->
-    
-    <!-- Score -->
-    <rect x="300" y="20" width="200" height="30" rx="5" fill="#0000FF" opacity="0.7"/>
-    <text x="400" y="40" text-anchor="middle" font-family="Arial" font-size="16" fill="#FFFFFF">Score: 0</text>
-    
-    <!-- Game title -->
-    <text x="400" y="80" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="#FFFF00">Pacman</text>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100" height="100" fill="#000000"/> <!-- Black background -->
+
+  <!-- Simple flat Pac-Man -->
+  <!-- Body (Circle with a wedge cut out for the mouth) -->
+  <path d="M 50 15 A 35 35 0 1 1 35.3 80.3 L 50 50 Z" fill="#FFDA61"/> <!-- Yellow -->
+
+  <!-- Simple flat dot -->
+  <circle cx="80" cy="50" r="5" fill="#FFFFFF"/> <!-- White dot -->
 </svg>
