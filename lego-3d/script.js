@@ -9,9 +9,10 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let ghostBrick = null; // To hold the preview mesh
 let joystickThumb = null; // Added for visualizer
+let brickPreviewData = {}; // Added to store preview scene data { scene, camera, renderer, mesh }
  
-// --- Virtual Joystick State --- Added
-let isJoystickDragging = false;
+ // --- Virtual Joystick State --- Added
+ let isJoystickDragging = false;
 let joystickStartX = 0;
 let joystickStartY = 0;
 let joystickVector = { x: 0, y: 0 }; // Normalized vector (-1 to 1)
@@ -329,10 +330,18 @@ function populateBrickLibrary() {
         const distance = maxDim * 2.5; // Adjust distance multiplier as needed
         previewCamera.position.set(distance, distance * 0.8, distance);
         previewCamera.lookAt(previewScene.position); // Look at the center of the scene (where the brick is)
-
-        // Render the preview once
+ 
+        // --- Store preview data for later updates --- Added
+        brickPreviewData[type] = {
+            scene: previewScene,
+            camera: previewCamera,
+            renderer: previewRenderer,
+            mesh: mesh
+        };
+ 
+        // Render the preview once (with initial color)
         previewRenderer.render(previewScene, previewCamera);
-
+ 
         // Dispose of renderer resources if possible (might not be necessary for few previews)
         // previewRenderer.dispose(); // Be careful if reusing renderers
     });
@@ -405,9 +414,19 @@ function handleColorSelection(event) {
                 previousSelected.classList.remove('selected');
             }
             target.classList.add('selected');
-
+ 
             // Update the ghost brick preview
             updateGhostBrick();
+ 
+            // --- Update Brick Library Previews --- Added
+            for (const type in brickPreviewData) {
+                const data = brickPreviewData[type];
+                if (data && data.mesh && data.mesh.material) {
+                    data.mesh.material.color.set(selectedColor);
+                    data.renderer.render(data.scene, data.camera); // Re-render this preview
+                }
+            }
+            // --- End Update Previews ---
         }
     }
 }
