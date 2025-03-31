@@ -14,7 +14,6 @@ let ballSpeedX = 5;
 let ballSpeedY = 5;
 let score1 = 0;
 let score2 = 0;
-let gameSpeed = 1;
 
 // Paddle movement
 const paddleSpeed = 1.0;
@@ -78,8 +77,8 @@ function gameLoop() {
     }
 
     // Update ball position
-    ballX += ballSpeedX * gameSpeed;
-    ballY += ballSpeedY * gameSpeed;
+    ballX += ballSpeedX * speedMultiplier;
+    ballY += ballSpeedY * speedMultiplier;
 
     // Ball collision with top and bottom (60vmin container)
     if (ballY <= 0 || ballY >= 60 - 2) {
@@ -123,7 +122,6 @@ function resetBall() {
     ballY = 30; // 60vmin * 0.5
     ballSpeedX = (Math.random() > 0.5 ? 0.4 : -0.4) * speedMultiplier;
     ballSpeedY = (Math.random() * 0.4 - 0.2) * speedMultiplier;
-    gameSpeed = 1;
 }
 
 // Handle window resize
