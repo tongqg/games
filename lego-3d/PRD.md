@@ -8,7 +8,7 @@ A web-based 3D simulator that allows users to place virtual Lego-style bricks on
 
 *   **3D Environment:** Renders a 3D scene using Three.js.
 *   **Base Plate:** Provides a gridded base plate with studs.
-*   **Camera Controls:** Uses OrbitControls for rotating, panning (disabled), and zooming the view.
+*   **Camera Controls:** Uses OrbitControls for zooming and panning (disabled). Rotation is controlled via an on-screen virtual joystick operated by touch/mouse; direct touch/mouse rotation on the main view is disabled.
 *   **Brick Types:** Supports predefined brick sizes (1x2, 1x3, 1x4, 2x2, 2x3, 2x4).
 *   **Color Selection:** Allows users to choose the color of the bricks from a fixed palette of 10 standard colors.
 *   **Brick Placement:**

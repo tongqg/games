@@ -8,9 +8,19 @@ const objects = []; // To store placed bricks and the plane
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let ghostBrick = null; // To hold the preview mesh
-
-// --- Configuration ---
-const gridSize = 16;
+let joystickThumb = null; // Added for visualizer
+ 
+// --- Virtual Joystick State --- Added
+let isJoystickDragging = false;
+let joystickStartX = 0;
+let joystickStartY = 0;
+let joystickVector = { x: 0, y: 0 }; // Normalized vector (-1 to 1)
+const joystickBaseRadius = 40; // Half the width/height of #joystick-visualizer (80px / 2)
+const joystickThumbRadius = 15; // Half the width/height of #joystick-thumb (30px / 2)
+const virtualJoystickRotationSpeed = 0.03; // Sensitivity for virtual joystick rotation
+ 
+ // --- Configuration ---
+ const gridSize = 16;
 const unitSize = 1;
 const brickHeight = unitSize * 0.96;
 const studRadius = unitSize * 0.24; // Stud dimensions
@@ -199,6 +209,7 @@ function init() {
     controls.minDistance = 3;
     controls.maxDistance = planeSize * 3;
     controls.maxPolarAngle = Math.PI / 2 - 0.01;
+    controls.enableRotate = false; // Disable mouse/touch rotation
     controls.target.set(0, 0, 0); // Explicitly set target
     controls.update();
     console.log("OrbitControls initialized.");
@@ -224,7 +235,22 @@ function init() {
     brickLibrary.addEventListener('click', handleBrickSelection); // Added listener for library
     colorPalette.addEventListener('click', handleColorSelection); // Added listener for palette
     window.addEventListener('keydown', onKeyDown); // Added listener for rotation key
-
+ 
+    // --- Get References for Virtual Joystick --- Added
+    const joystickVisualizer = document.getElementById('joystick-visualizer');
+    joystickThumb = document.getElementById('joystick-thumb');
+ 
+    // --- Add Virtual Joystick Event Listeners --- Added
+    if (joystickVisualizer) {
+        joystickVisualizer.addEventListener('pointerdown', joystickPointerDown, false);
+        // Add move/up listeners to the window to capture events even if pointer leaves the joystick area
+        window.addEventListener('pointermove', joystickPointerMove, false);
+        window.addEventListener('pointerup', joystickPointerUp, false);
+        window.addEventListener('pointercancel', joystickPointerUp, false); // Treat cancel like up
+    } else {
+        console.error("Joystick visualizer element not found!");
+    }
+ 
     console.log("Initialization complete.");
 }
 
@@ -615,6 +641,90 @@ function placeBrick(position, targetBaseY) {
     objects.push(brick); // Add brick for future raycasting
 }
 
+// --- Virtual Joystick Event Handlers --- Added
+
+function getPointerPosition(event) {
+    // Helper to get consistent clientX/clientY for mouse and touch
+    if (event.changedTouches && event.changedTouches.length > 0) {
+        return { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+    }
+    return { x: event.clientX, y: event.clientY };
+}
+
+function joystickPointerDown(event) {
+    const joystickVisualizer = event.currentTarget; // The element the listener is attached to
+    joystickVisualizer.setPointerCapture(event.pointerId); // Capture pointer events
+    isJoystickDragging = true;
+    const pos = getPointerPosition(event);
+    joystickStartX = pos.x;
+    joystickStartY = pos.y;
+    joystickVisualizer.style.cursor = 'grabbing'; // Change cursor
+    // console.log("Joystick Down");
+    // Prevent default behavior like text selection or page scrolling on touch
+    event.preventDefault();
+}
+
+function joystickPointerMove(event) {
+    if (!isJoystickDragging) return;
+
+    const joystickVisualizer = document.getElementById('joystick-visualizer'); // Need the element ref
+    if (!joystickVisualizer) return;
+
+    const rect = joystickVisualizer.getBoundingClientRect();
+    const centerX = rect.left + joystickBaseRadius; // Center X of the base
+    const centerY = rect.top + joystickBaseRadius;  // Center Y of the base
+
+    const pos = getPointerPosition(event);
+    let deltaX = pos.x - centerX;
+    let deltaY = pos.y - centerY;
+
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = joystickBaseRadius - joystickThumbRadius; // Max distance thumb can move from center
+
+    // Clamp the thumb position within the base
+    if (distance > maxDistance) {
+        const angle = Math.atan2(deltaY, deltaX);
+        deltaX = Math.cos(angle) * maxDistance;
+        deltaY = Math.sin(angle) * maxDistance;
+    }
+
+    // Update thumb visual position (relative to base center)
+    if (joystickThumb) {
+        joystickThumb.style.left = `calc(50% + ${deltaX}px)`;
+        joystickThumb.style.top = `calc(50% + ${deltaY}px)`;
+    }
+
+    // Update normalized joystick vector for rotation control
+    joystickVector.x = deltaX / maxDistance;
+    joystickVector.y = deltaY / maxDistance; // We might only use X for rotation
+
+    // console.log(`Joystick Move: x=${joystickVector.x.toFixed(2)}, y=${joystickVector.y.toFixed(2)}`);
+    event.preventDefault(); // Prevent scrolling while dragging joystick
+}
+
+function joystickPointerUp(event) {
+    if (!isJoystickDragging) return;
+
+    const joystickVisualizer = document.getElementById('joystick-visualizer');
+    if (joystickVisualizer) {
+        joystickVisualizer.releasePointerCapture(event.pointerId);
+        joystickVisualizer.style.cursor = 'grab'; // Reset cursor
+    }
+
+    isJoystickDragging = false;
+    joystickVector.x = 0;
+    joystickVector.y = 0;
+
+    // Reset thumb position to center
+    if (joystickThumb) {
+        joystickThumb.style.left = '50%';
+        joystickThumb.style.top = '50%';
+    }
+    // console.log("Joystick Up");
+}
+
+// --- End Virtual Joystick Event Handlers ---
+
 
 function animate() {
     requestAnimationFrame(animate);
@@ -624,7 +734,39 @@ function animate() {
         // console.log(`Animate loop running (frame ${frameCount}).`); // Commented out for less noise
     }
     frameCount++;
-
-    controls.update(); // Update controls first
-    renderer.render(scene, camera); // Then render the scene
+ 
+    // --- Apply Virtual Joystick Rotation & Tilt --- Updated
+    if (joystickVector.x !== 0 || joystickVector.y !== 0) {
+        const target = controls.target;
+        const offset = camera.position.clone().sub(target);
+ 
+        // Calculate current spherical coordinates
+        const distance = offset.length();
+        let theta = Math.atan2(offset.x, offset.z); // Azimuthal angle
+        let phi = Math.acos(offset.y / distance);   // Polar angle (from +Y)
+ 
+        // Calculate change based on joystick input
+        const deltaTheta = -joystickVector.x * virtualJoystickRotationSpeed;
+        const deltaPhi = joystickVector.y * virtualJoystickRotationSpeed; // Positive Y = move down
+ 
+        // Apply changes
+        theta += deltaTheta;
+        phi += deltaPhi;
+ 
+        // Clamp polar angle (phi)
+        const minPolarAngle = 0.1; // Prevent looking straight down
+        const maxPolarAngle = Math.PI / 2 - 0.01; // Prevent going below horizon
+        phi = Math.max(minPolarAngle, Math.min(maxPolarAngle, phi));
+ 
+        // Calculate new offset vector from spherical coordinates
+        offset.x = distance * Math.sin(phi) * Math.sin(theta);
+        offset.y = distance * Math.cos(phi);
+        offset.z = distance * Math.sin(phi) * Math.cos(theta);
+ 
+        // Apply new position
+        camera.position.copy(target).add(offset);
+    }
+ 
+    controls.update(); // Update controls (handles damping, zoom, AND camera lookAt target)
+    renderer.render(scene, camera); // Render the scene
 }
