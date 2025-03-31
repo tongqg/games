@@ -1,0 +1,137 @@
+    body {
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars */
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+}
+
+#container {
+    width: calc(100vw - 200px); /* Full width minus info panel */
+    height: 100vh;
+    display: block;
+}
+
+#info {
+    width: 200px;
+    padding: 15px;
+    background-color: #ddd;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    height: 100vh;
+    box-sizing: border-box; /* Include padding in width/height */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Spacing between elements */
+}
+
+#info h2 {
+    margin-top: 0;
+}
+
+#info label {
+    display: block;
+    margin-top: 10px;
+}
+
+#info select, #info input[type="color"] {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#brick-library {
+    display: flex; /* Arrange previews horizontally */
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 5px; /* Space between previews */
+    margin-bottom: 10px; /* Space below the library */
+    border: 1px solid #ccc; /* Optional border */
+    padding: 5px;
+    background-color: #eee; /* Slightly different background */
+}
+
+.brick-preview {
+    /* Removed padding */
+    border: 1px solid #aaa;
+    background-color: #eee; /* Match library background initially */
+    cursor: pointer;
+    width: 62px; /* Canvas width (60) + border (1*2) */
+    height: auto; /* Adjust height automatically */
+    display: flex;
+    flex-direction: column; /* Stack canvas and label vertically */
+    align-items: center; /* Center items horizontally */
+    /* Removed justify-content */
+    transition: background-color 0.2s, border-color 0.2s;
+    padding-bottom: 3px; /* Add some space below label */
+    box-sizing: border-box;
+}
+
+.brick-preview canvas {
+    display: block; /* Ensure canvas behaves like a block element */
+    width: 60px; /* Explicit canvas width */
+    height: 60px; /* Explicit canvas height */
+}
+
+/* --- Brick Label Styles --- Added */
+.brick-label {
+    font-size: 0.7em; /* Smaller font size */
+    color: #333;
+    text-align: center;
+    margin-top: 2px; /* Space between canvas and label */
+    user-select: none; /* Prevent text selection */
+    line-height: 1; /* Prevent extra spacing */
+}
+/* --- End Brick Label Styles --- */
+
+.brick-preview:hover {
+    border-color: #888; /* Darken border on hover */
+    /* Removed background-color change on hover for container */
+}
+
+.brick-preview.selected {
+    /* Keep background color for the container to show selection */
+    background-color: #a0c4ff; /* Highlight color */
+    border-color: #4477cc;
+    /* Removed font-weight */
+}
+
+/* --- Color Palette Styles --- Added */
+#color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Space between swatches */
+    margin-top: 5px; /* Space above the palette */
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+}
+
+.color-swatch {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #aaa;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color 0.2s, transform 0.1s;
+}
+
+.color-swatch:hover {
+    border-color: #333;
+}
+
+.color-swatch.selected {
+    border: 2px solid #000; /* Thicker border for selected */
+    transform: scale(1.1); /* Slightly larger */
+}
+/* --- End Color Palette Styles --- */
+
+#home-link {
+    display: block;
+    margin-bottom: 15px; /* Add space below the link */
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+#home-link:hover {
+    color: #007bff; /* Change color on hover */
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Lego Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="info">
+        <h2>Lego Simulator</h2>
+        <p>Click on the grid to place bricks. Use mouse to rotate.</p>
+        <label>Brick Type:</label> <!-- Keep label for clarity -->
+        <div id="brick-library">
+            <!-- Previews will be added here by script.js -->
+        </div>
+        <label>Color:</label> <!-- Removed 'for' attribute -->
+        <div id="color-palette">
+            <!-- Color swatches will be added here by script.js -->
+        </div>
+    </div>
+    <div id="container"></div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

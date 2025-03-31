@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Ping Pong</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="cyber-container">
+        <h1 class="neon-text">CYBER PONG</h1>
+        <div class="score-container">
+            <div class="score neon-text" id="player1">0</div>
+            <div class="score neon-text" id="player2">0</div>
+        </div>
+        <div class="game-container">
+            <div class="paddle" id="paddle1"></div>
+            <div class="paddle" id="paddle2"></div>
+            <div class="ball" id="ball"></div>
+            <div class="center-line"></div>
+        </div>
+        <div class="controls">
+            <p class="neon-text">PLAYER 1: W/S</p>
+            <p class="neon-text">PLAYER 2: ↑/↓</p>
+            <div class="speed-control">
+                <label for="speedSlider" class="neon-text">球速: </label>
+                <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+                <span id="speedValue" class="neon-text">1x</span>
+            </div>
+        </div>
+    </div>
+    <canvas id="matrix"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
