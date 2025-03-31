@@ -554,41 +554,143 @@ function updateGhostBrick() {
     console.log("Ghost brick updated for type:", selectedBrickType, " color:", selectedColor, " rotation:", (currentRotationY * 180 / Math.PI).toFixed(0));
 }
 
+// --- Helper function to calculate brick footprint in grid coordinates ---
+function getBrickFootprint(brick) {
+    const position = brick.position;
+    const rotationY = brick.rotation.y;
+    // Attempt to find the brick type string by comparing geometry references
+    const brickType = Object.keys(brickGeometries).find(key => brick.geometry === brickGeometries[key]);
+    if (!brickType) {
+        console.warn("Could not determine brick type from geometry for footprint calculation.", brick);
+        return null; // Cannot calculate footprint without type
+    }
+
+    const dimensions = brickType.split('x').map(Number);
+    const originalWidthUnits = dimensions[0] || 1;
+    const originalDepthUnits = dimensions[1] || 1;
+
+    let effectiveWidthUnits = originalWidthUnits;
+    let effectiveDepthUnits = originalDepthUnits;
+    const ninetyDeg = Math.PI / 2;
+    const twoSeventyDeg = 3 * Math.PI / 2;
+    const tolerance = 0.01;
+    if (Math.abs(rotationY - ninetyDeg) < tolerance || Math.abs(rotationY - twoSeventyDeg) < tolerance) {
+        effectiveWidthUnits = originalDepthUnits;
+        effectiveDepthUnits = originalWidthUnits;
+    }
+
+    const halfWidthWorld = effectiveWidthUnits * unitSize / 2;
+    const halfDepthWorld = effectiveDepthUnits * unitSize / 2;
+
+    // Calculate world bounds
+    const minXWorld = position.x - halfWidthWorld;
+    const maxXWorld = position.x + halfWidthWorld;
+    const minZWorld = position.z - halfDepthWorld;
+    const maxZWorld = position.z + halfDepthWorld;
+
+    // Convert world bounds to grid indices
+    // Add planeSize / 2 to shift origin from (-planeSize/2, -planeSize/2) to (0,0) before dividing by unitSize
+    const minGridX = Math.floor((minXWorld + planeSize / 2) / unitSize);
+    const maxGridX = Math.floor((maxXWorld - 0.001 + planeSize / 2) / unitSize); // Epsilon for edge cases
+    const minGridZ = Math.floor((minZWorld + planeSize / 2) / unitSize);
+    const maxGridZ = Math.floor((maxZWorld - 0.001 + planeSize / 2) / unitSize); // Epsilon for edge cases
+
+    return { minGridX, maxGridX, minGridZ, maxGridZ };
+}
+
+
+// --- Helper function to calculate correct placement height considering overlaps ---
+function calculatePlacementHeight(snappedX, snappedZ, effectiveWidthUnits, effectiveDepthUnits) {
+    const halfWidthWorld = effectiveWidthUnits * unitSize / 2;
+    const halfDepthWorld = effectiveDepthUnits * unitSize / 2;
+
+    // Calculate potential new brick's world bounds
+    const newMinXWorld = snappedX - halfWidthWorld;
+    const newMaxXWorld = snappedX + halfWidthWorld;
+    const newMinZWorld = snappedZ - halfDepthWorld;
+    const newMaxZWorld = snappedZ + halfDepthWorld;
+
+    // Convert to grid indices for the new brick
+    const newMinGridX = Math.floor((newMinXWorld + planeSize / 2) / unitSize);
+    const newMaxGridX = Math.floor((newMaxXWorld - 0.001 + planeSize / 2) / unitSize);
+    const newMinGridZ = Math.floor((newMinZWorld + planeSize / 2) / unitSize);
+    const newMaxGridZ = Math.floor((newMaxZWorld - 0.001 + planeSize / 2) / unitSize);
+
+    let maxOverlappingY = -Infinity;
+
+    objects.forEach(obj => {
+        if (obj.isMesh && obj !== plane) { // Check only existing bricks
+            const existingFootprint = getBrickFootprint(obj);
+            if (!existingFootprint) return; // Skip if footprint calculation failed
+
+            // Check for overlap using grid indices
+            const overlaps =
+                newMinGridX <= existingFootprint.maxGridX &&
+                newMaxGridX >= existingFootprint.minGridX &&
+                newMinGridZ <= existingFootprint.maxGridZ &&
+                newMaxGridZ >= existingFootprint.minGridZ;
+
+            if (overlaps) {
+                maxOverlappingY = Math.max(maxOverlappingY, obj.position.y);
+            }
+        }
+    });
+
+    // If overlap found, place on top; otherwise, place on base (Y=0)
+    return maxOverlappingY > -Infinity ? maxOverlappingY + brickHeight : 0;
+}
+
+
 function onPointerDown(event) {
     const rect = container.getBoundingClientRect();
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(pointer, camera);
-    // Intersect with all objects (plane and bricks). 'false' means don't check descendants.
-    const intersects = raycaster.intersectObjects(objects, false);
+    const intersects = raycaster.intersectObjects(objects, false); // Intersect plane and bricks
 
     if (intersects.length > 0) {
         const intersect = intersects[0];
-        const clickedObject = intersect.object;
-        const clickPoint = intersect.point;
-        // We need face normals to determine if we clicked the top of a brick
-        const faceNormal = intersect.face ? intersect.face.normal.clone().applyQuaternion(clickedObject.quaternion) : null;
+        const clickPoint = intersect.point; // Use the precise click point for grid calculation
 
         // Stop controls from moving camera if we interact with the scene
         event.stopPropagation();
 
-        if (clickedObject === plane) {
-            // Clicked on the base plane, place brick at base level (Y=0)
-            console.log("Clicked on plane");
-            placeBrick(clickPoint, 0); // Target base Y = 0
-        } else if (clickedObject.isMesh && clickedObject !== plane && faceNormal && faceNormal.y > 0.9) {
-            // Clicked on the top face (normal points mostly up) of an existing brick
-            console.log("Clicked on top of brick at y=", clickedObject.position.y);
-            // Target base Y is the top surface of the clicked brick.
-            // Since brick geometry base is at y=0 relative to the mesh, the top is at y=brickHeight.
-            // The world position of the top surface is brick.position.y + brickHeight.
-            const targetBaseY = clickedObject.position.y + brickHeight;
-            placeBrick(clickPoint, targetBaseY);
-        } else {
-            // Clicked on the side of a brick or something else unexpected
-            console.log("Clicked on side of brick or unknown object", faceNormal ? `Normal: (${faceNormal.x.toFixed(1)}, ${faceNormal.y.toFixed(1)}, ${faceNormal.z.toFixed(1)})` : "");
+        // --- Calculate potential placement details ---
+        const brickType = selectedBrickType;
+        const dimensions = brickType.split('x').map(Number);
+        const originalWidthUnits = dimensions[0] || 1;
+        const originalDepthUnits = dimensions[1] || 1;
+
+        let effectiveWidthUnits = originalWidthUnits;
+        let effectiveDepthUnits = originalDepthUnits;
+        const ninetyDeg = Math.PI / 2;
+        const twoSeventyDeg = 3 * Math.PI / 2;
+        const tolerance = 0.01;
+        if (Math.abs(currentRotationY - ninetyDeg) < tolerance || Math.abs(currentRotationY - twoSeventyDeg) < tolerance) {
+            effectiveWidthUnits = originalDepthUnits;
+            effectiveDepthUnits = originalWidthUnits;
         }
+
+        // Calculate grid cell index based on click position
+        const gridX = Math.floor((clickPoint.x + planeSize / 2) / unitSize);
+        const gridZ = Math.floor((clickPoint.z + planeSize / 2) / unitSize);
+
+        // Calculate the snapped center position of the brick
+        const cornerX = (gridX * unitSize) - (planeSize / 2);
+        const cornerZ = (gridZ * unitSize) - (planeSize / 2);
+        const snappedX = cornerX + (effectiveWidthUnits * unitSize / 2);
+        const snappedZ = cornerZ + (effectiveDepthUnits * unitSize / 2);
+
+        // --- Determine the correct placement height using the new helper ---
+        const targetBaseY = calculatePlacementHeight(snappedX, snappedZ, effectiveWidthUnits, effectiveDepthUnits);
+
+        console.log(`Attempting placement. Snapped Center: (${snappedX.toFixed(2)}, ${snappedZ.toFixed(2)}), Calculated Target Y: ${targetBaseY.toFixed(2)}`);
+
+        // --- Place the brick using the calculated height ---
+        // Pass the original clickPoint for potential use inside placeBrick, but the Y is now correct.
+        placeBrick(clickPoint, targetBaseY);
+
     }
 }
 
