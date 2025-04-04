@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #fff; /* Change background to white */
+    color: #333; /* Change default text color to dark grey */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; /* Prevent scrollbars from canvas */
+}
+
+h1 {
+    margin-top: 10px;
+    color: #111; /* Darker heading color */
+}
+
+.controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(230, 230, 230, 0.8); /* Lighter control background */
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 10; /* Ensure controls are above the canvas */
+}
+
+label {
+    margin-right: 5px;
+}
+
+#scene-container {
+    width: 100vw;
+    height: calc(100vh - 60px); /* Adjust height considering the h1 */
+    position: absolute;
+    top: 60px; /* Position below the h1 */
+    left: 0;
+}
+
+canvas {
+    display: block; /* Prevent extra space below canvas */
+}

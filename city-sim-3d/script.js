@@ -1,8 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Texture Loader
+const textureLoader = new THREE.TextureLoader();
 
 // Scene
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb); // Sky blue background
 scene.background = new THREE.Color(0x87ceeb); // Sky blue background
 
 // Camera
@@ -55,79 +58,171 @@ const roadElevation = 0.05; // Slightly above ground
 const gridSize = 10; // Number of blocks in each direction from center
 const blockSize = groundSize / (gridSize * 2); // Size of one city block
 
-// Create Roads
-const roadMaterial = new THREE.MeshStandardMaterial({ color: roadColor });
+// Load Textures (Using placeholders - replace with your own textures)
+const roadTextureUrl = 'https://threejs.org/examples/textures/hardwood2_diffuse.jpg'; // Placeholder asphalt
+const buildingTextureUrl = 'https://threejs.org/examples/textures/brick_diffuse.jpg'; // Placeholder brick
 
-// Roads along Z-axis
+const roadTexture = textureLoader.load(roadTextureUrl);
+roadTexture.wrapS = THREE.RepeatWrapping;
+roadTexture.wrapT = THREE.RepeatWrapping;
+roadTexture.repeat.set(1, groundSize / roadWidth); // Repeat along the length
+
+const buildingTexture = textureLoader.load(buildingTextureUrl);
+buildingTexture.wrapS = THREE.RepeatWrapping;
+buildingTexture.wrapT = THREE.RepeatWrapping;
+
+
+// Create Roads (Using PlaneGeometry for easier texture mapping)
+const roadMaterial = new THREE.MeshStandardMaterial({ map: roadTexture, color: 0xaaaaaa }); // Apply texture, slightly greyish base
+
+// Roads along Z-axis (Vertical)
 for (let i = -gridSize; i <= gridSize; i++) {
     const roadGeometry = new THREE.PlaneGeometry(roadWidth, groundSize);
     const road = new THREE.Mesh(roadGeometry, roadMaterial);
     road.rotation.x = -Math.PI / 2;
-    road.position.set(i * blockSize - roadWidth / 2, roadElevation, 0); // Offset by half width
+    road.position.set(i * blockSize, roadElevation, 0); // Position slightly above ground
     road.receiveShadow = true;
     scene.add(road);
-
-    // Add another parallel segment for thicker roads if needed, or adjust roadWidth
-    const road2 = new THREE.Mesh(roadGeometry, roadMaterial);
-    road2.rotation.x = -Math.PI / 2;
-    road2.position.set(i * blockSize + roadWidth / 2, roadElevation, 0); // Offset by half width
-    road2.receiveShadow = true;
-    scene.add(road2);
 }
 
-// Roads along X-axis
+// Roads along X-axis (Horizontal)
+// Need a separate texture instance for horizontal roads to set repeat differently
+const roadTextureHorizontal = textureLoader.load(roadTextureUrl);
+roadTextureHorizontal.wrapS = THREE.RepeatWrapping;
+roadTextureHorizontal.wrapT = THREE.RepeatWrapping;
+roadTextureHorizontal.repeat.set(groundSize / roadWidth, 1); // Repeat along the length
+
+const roadMaterialHorizontal = new THREE.MeshStandardMaterial({ map: roadTextureHorizontal, color: 0xaaaaaa });
+
 for (let i = -gridSize; i <= gridSize; i++) {
     const roadGeometry = new THREE.PlaneGeometry(groundSize, roadWidth);
-    const road = new THREE.Mesh(roadGeometry, roadMaterial);
+    const road = new THREE.Mesh(roadGeometry, roadMaterialHorizontal);
     road.rotation.x = -Math.PI / 2;
-    road.position.set(0, roadElevation, i * blockSize - roadWidth / 2); // Offset by half width
+    road.position.set(0, roadElevation, i * blockSize); // Position slightly above ground
     road.receiveShadow = true;
     scene.add(road);
-
-     // Add another parallel segment for thicker roads if needed, or adjust roadWidth
-    const road2 = new THREE.Mesh(roadGeometry, roadMaterial);
-    road2.rotation.x = -Math.PI / 2;
-    road2.position.set(0, roadElevation, i * blockSize + roadWidth / 2); // Offset by half width
-    road2.receiveShadow = true;
-    scene.add(road2);
 }
 
 
-// Function to create a simple building
-function createBuilding(width, height, depth, x, z) {
-    const buildingGeometry = new THREE.BoxGeometry(width, height, depth);
-    const buildingMaterial = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(Math.random() * 0.3 + 0.5, Math.random() * 0.3 + 0.5, Math.random() * 0.3 + 0.5) // Shades of gray
+// Function to create a slightly more detailed procedural building
+function createBuilding(baseWidth, baseDepth, maxHeight, x, z) {
+    const buildingGroup = new THREE.Group();
+
+    // Base structure
+    const baseHeight = Math.random() * (maxHeight * 0.6) + (maxHeight * 0.2); // 20% to 80% of max height
+    const baseGeometry = new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth);
+    // Clone texture for independent repeat settings if needed, or use shared
+    const buildingMatTexture = buildingTexture.clone();
+    // Adjust texture repeat based on building face size (approximate)
+    buildingMatTexture.repeat.set(baseWidth / 5, baseHeight / 5); // Adjust '5' based on texture scale
+
+    const baseMaterial = new THREE.MeshStandardMaterial({
+        map: buildingMatTexture,
+        color: 0xffffff // Use white base color to not tint texture too much
     });
-    const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-    // Position base slightly above ground to avoid z-fighting with roads
-    building.position.set(x, height / 2 + roadElevation, z);
-    building.castShadow = true;
-    building.receiveShadow = true;
-    scene.add(building);
-    return building;
+    const base = new THREE.Mesh(baseGeometry, baseMaterial);
+    base.castShadow = true;
+    base.receiveShadow = true;
+    buildingGroup.add(base);
+
+    // Optional: Add a smaller top structure
+    if (Math.random() > 0.4 && maxHeight > 10) { // 60% chance for taller buildings
+        const topHeight = Math.random() * (maxHeight - baseHeight) * 0.7 + (maxHeight - baseHeight) * 0.2;
+        const topWidth = baseWidth * (Math.random() * 0.3 + 0.5); // 50% to 80% of base width
+        const topDepth = baseDepth * (Math.random() * 0.3 + 0.5); // 50% to 80% of base depth
+        const topGeometry = new THREE.BoxGeometry(topWidth, topHeight, topDepth);
+        // Clone texture for independent repeat settings if needed
+        const topBuildingMatTexture = buildingTexture.clone();
+        topBuildingMatTexture.repeat.set(topWidth / 5, topHeight / 5); // Adjust '5' based on texture scale
+
+        const topMaterial = new THREE.MeshStandardMaterial({
+             map: topBuildingMatTexture,
+             color: 0xffffff // Use white base color
+        });
+        const topPart = new THREE.Mesh(topGeometry, topMaterial);
+        topPart.position.set(0, baseHeight / 2 + topHeight / 2, 0); // Position on top of the base
+        topPart.castShadow = true;
+        topPart.receiveShadow = true;
+        buildingGroup.add(topPart);
+    }
+
+    // Position the entire building group
+    // Group's origin is at the center of the base
+    buildingGroup.position.set(x, baseHeight / 2 + roadElevation, z);
+    scene.add(buildingGroup);
+    return buildingGroup; // Return the group
 }
 
-// Add buildings within blocks
-const buildingPadding = 1.5; // Padding from the road edge
+// Function to create a simple procedural tree
+function createTree(x, z) {
+    const treeGroup = new THREE.Group();
+
+    // Trunk
+    const trunkHeight = Math.random() * 2 + 1.5; // Height between 1.5 and 3.5
+    const trunkRadius = trunkHeight * 0.15;
+    const trunkGeometry = new THREE.CylinderGeometry(trunkRadius * 0.8, trunkRadius, trunkHeight, 8);
+    const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); // SaddleBrown
+    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+    trunk.castShadow = true;
+    trunk.receiveShadow = false; // Trunk less likely to receive distinct shadows
+    treeGroup.add(trunk);
+
+    // Canopy (Sphere)
+    const canopyRadius = trunkHeight * 0.6 + 0.5;
+    const canopyGeometry = new THREE.SphereGeometry(canopyRadius, 16, 12);
+    const canopyMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 }); // ForestGreen
+    const canopy = new THREE.Mesh(canopyGeometry, canopyMaterial);
+    canopy.position.y = trunkHeight / 2 + canopyRadius * 0.6; // Position canopy above trunk
+    canopy.castShadow = true;
+    canopy.receiveShadow = true;
+    treeGroup.add(canopy);
+
+    // Position the entire tree group
+    treeGroup.position.set(x, trunkHeight / 2 + roadElevation, z); // Base of the trunk at ground level
+    scene.add(treeGroup);
+    return treeGroup;
+}
+
+
+// Add buildings and trees within blocks
+const elementPadding = 1.5; // Padding from the road edge for buildings/trees
+const treeProbability = 0.15; // Chance to place a tree instead of trying for a building
 
 for (let i = -gridSize; i < gridSize; i++) {
     for (let j = -gridSize; j < gridSize; j++) {
-        // Calculate block center
-        const blockCenterX = (i + 0.5) * blockSize;
-        const blockCenterZ = (j + 0.5) * blockSize;
+        // Calculate block boundaries
+        const blockStartX = i * blockSize + roadWidth / 2;
+        const blockStartZ = j * blockSize + roadWidth / 2;
+        const blockEndX = (i + 1) * blockSize - roadWidth / 2;
+        const blockEndZ = (j + 1) * blockSize - roadWidth / 2;
+        const availableWidth = blockEndX - blockStartX - 2 * elementPadding;
+        const availableDepth = blockEndZ - blockStartZ - 2 * elementPadding;
 
-        // Randomly decide whether to place a building in this block
-        if (Math.random() > 0.3) { // 70% chance to place a building
-            const buildingWidth = Math.random() * (blockSize - roadWidth - buildingPadding * 2) * 0.6 + (blockSize - roadWidth - buildingPadding * 2) * 0.2; // Min 20% of available space
-            const buildingDepth = Math.random() * (blockSize - roadWidth - buildingPadding * 2) * 0.6 + (blockSize - roadWidth - buildingPadding * 2) * 0.2;
-            const buildingHeight = Math.random() * 25 + 8; // Random height between 8 and 33
+        if (availableWidth <= 0 || availableDepth <= 0) continue; // Skip if block is too small
 
-            // Random position within the block, respecting padding
-            const buildingX = blockCenterX + (Math.random() - 0.5) * (blockSize - roadWidth - buildingPadding * 2 - buildingWidth);
-            const buildingZ = blockCenterZ + (Math.random() - 0.5) * (blockSize - roadWidth - buildingPadding * 2 - buildingDepth);
+        // Randomly decide placement within the block
+        const placeX = blockStartX + elementPadding + Math.random() * availableWidth;
+        const placeZ = blockStartZ + elementPadding + Math.random() * availableDepth;
 
-            createBuilding(buildingWidth, buildingHeight, buildingDepth, buildingX, buildingZ);
+        if (Math.random() < treeProbability) {
+            // Place a tree
+             if (Math.random() < 0.7) { // 70% chance to actually place a tree here
+                 createTree(placeX, placeZ);
+             }
+        } else {
+            // Try to place a building
+            if (Math.random() > 0.35) { // 65% chance to place a building
+                const buildingWidth = Math.random() * availableWidth * 0.5 + availableWidth * 0.2; // Min 20% width
+                const buildingDepth = Math.random() * availableDepth * 0.5 + availableDepth * 0.2; // Min 20% depth
+                const buildingHeight = Math.random() * 25 + 8; // Random height between 8 and 33
+
+                // Adjust placement coords to be center of building base
+                const buildingX = blockStartX + elementPadding + buildingWidth / 2 + Math.random() * (availableWidth - buildingWidth);
+                const buildingZ = blockStartZ + elementPadding + buildingDepth / 2 + Math.random() * (availableDepth - buildingDepth);
+
+
+                createBuilding(buildingWidth, buildingDepth, buildingHeight, buildingX, buildingZ);
+            }
         }
     }
 }
