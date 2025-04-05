@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gomoku (Five in a Row)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Gomoku (Five in a Row)</h1>
+    <div id="game-setup">
+        <label for="game-mode">Mode:</label>
+        <select id="game-mode">
+            <option value="pvp" selected>Player vs Player</option>
+            <option value="pve">Player vs AI</option>
+        </select>
+        <div id="player-color-selection" class="hidden">
+             <label for="player-color">Your Color:</label>
+             <select id="player-color">
+                <option value="black" selected>Black (First)</option>
+                <option value="white">White (Second)</option>
+             </select>
+        </div>
+    </div>
+
+    <div id="game-info">
+        <p>Turn: <span id="current-player">Black</span></p>
+        <p id="winner-message" class="hidden"></p>
+    </div>
+    <div id="board-container">
+        <canvas id="gomoku-board" width="600" height="600"></canvas>
+    </div>
+    <button id="restart-button">Restart Game</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

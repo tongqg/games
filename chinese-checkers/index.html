@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国跳棋</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>中国跳棋</h1>
+    <div id="game-info">
+        <label for="player-count-select">玩家人数:</label>
+        <select id="player-count-select">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <!-- <option value="5">5</option> --> <!-- 5 players often unbalanced -->
+            <option value="6">6</option>
+        </select>
+        <p>当前玩家: <span id="current-player">玩家1</span></p>
+        <button id="reset-button">重新开始</button>
+    </div>
+    <canvas id="checkerboard" width="600" height="600"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
