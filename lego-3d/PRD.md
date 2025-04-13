@@ -20,6 +20,7 @@ A web-based 3D simulator that allows users to place virtual Lego-style bricks on
     *   **Brick Rotation:** Users can rotate the selected brick (e.g., using the 'R' key) before placing it. Rotation occurs in 90-degree increments around the vertical axis.
     *   **Placement Preview:** A semi-transparent "ghost" brick follows the mouse cursor over valid placement surfaces (base plate, top of other bricks). This preview shows the selected brick type, color, and current rotation, snapping to the grid.
 *   **Lighting & Shadows:** Basic ambient and directional lighting with shadows for realism.
+*   **Undo Placement:** Allows users to remove the last placed brick via an "Undo" button.
 
 ## 3. User Interface
 
