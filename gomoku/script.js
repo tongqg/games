@@ -6,6 +6,8 @@ const restartButton = document.getElementById('restart-button');
 const gameModeSelect = document.getElementById('game-mode');
 const playerColorSelectionDiv = document.getElementById('player-color-selection');
 const playerColorSelect = document.getElementById('player-color');
+const trainAIButton = document.getElementById('train-ai-button'); // Get the button element
+const trainingProgressP = document.getElementById('training-progress'); // Get the progress element
 
 const BOARD_SIZE = 15; // 15x15 grid
 const CELL_SIZE = canvas.width / BOARD_SIZE;
@@ -22,16 +24,25 @@ let gameMode = 'pvp'; // 'pvp' or 'pve'
 let playerColor = BLACK; // Human player's color in PvE
 let aiPlayer = WHITE;    // AI's color in PvE
 let isAITurn = false;
-
+let aiVsAiInterval = null; // To control the AI vs AI game loop
+let isAiVsAiMode = false; // Flag for AI vs AI mode
 // --- Initialization ---
 
 function initializeBoard() {
+    // Stop any ongoing AI vs AI game
+    if (aiVsAiInterval) {
+        clearInterval(aiVsAiInterval);
+        aiVsAiInterval = null;
+    }
+    isAiVsAiMode = false; // Reset AI vs AI mode flag
+
     board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY));
     currentPlayer = BLACK; // Black always starts
     gameOver = false;
     isAITurn = false;
     winnerMessageP.classList.add('hidden');
     winnerMessageP.textContent = '';
+    trainingProgressP.classList.add('hidden'); // Hide progress text on reset
 
     gameMode = gameModeSelect.value;
     if (gameMode === 'pve') {
@@ -126,8 +137,9 @@ function drawPiece(row, col, player) {
 // --- Game Logic ---
 
 function handleBoardClick(event) {
-    if (gameOver || (gameMode === 'pve' && isAITurn)) {
-        return; // Ignore clicks if game over or AI's turn
+    // Ignore clicks if game over, AI's turn in PvE, or AI vs AI mode
+    if (gameOver || (gameMode === 'pve' && isAITurn) || isAiVsAiMode) {
+        return;
     }
 
     const rect = canvas.getBoundingClientRect();
@@ -146,18 +158,20 @@ function isValidMove(row, col) {
      return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE && board[row][col] === EMPTY;
 }
 
-function makeMove(row, col, player) {
+function makeMove(row, col, player, isAiVsAi = false) { // Add flag for AI vs AI
     if (!isValidMove(row, col) || gameOver) return;
 
     board[row][col] = player;
-    drawPiece(row, col, player);
+    drawPiece(row, col, player); // Always draw the piece now
 
     if (checkWin(row, col)) {
         gameOver = true;
         let winnerName = '';
-        if (gameMode === 'pvp') {
+        if (isAiVsAi) {
+             winnerName = `AI (${player === BLACK ? 'Black' : 'White'})`;
+        } else if (gameMode === 'pvp') {
             winnerName = player === BLACK ? 'Black' : 'White';
-        } else {
+        } else { // PvE
             winnerName = player === playerColor ? 'You' : 'AI';
         }
         winnerMessageP.textContent = `${winnerName} (${player === BLACK ? 'Black' : 'White'}) wins!`;
@@ -169,7 +183,11 @@ function makeMove(row, col, player) {
     // --- Switch Player ---
     currentPlayer = (player === BLACK) ? WHITE : BLACK;
 
-    if (gameMode === 'pvp') {
+    if (isAiVsAi) {
+         // In AI vs AI mode, the loop handles the next turn
+         currentPlayerSpan.textContent = `AI (${currentPlayer === BLACK ? 'Black' : 'White'})`;
+         currentPlayerSpan.style.color = currentPlayer === BLACK ? 'black' : 'darkred';
+    } else if (gameMode === 'pvp') {
         currentPlayerSpan.textContent = currentPlayer === BLACK ? 'Black' : 'White';
         currentPlayerSpan.style.color = currentPlayer === BLACK ? 'black' : 'darkred';
     } else { // PvE mode
@@ -178,7 +196,7 @@ function makeMove(row, col, player) {
             currentPlayerSpan.textContent = `AI (${aiPlayer === BLACK ? 'Black' : 'White'})`;
             currentPlayerSpan.style.color = aiPlayer === BLACK ? 'black' : 'darkred';
             // AI makes its move after a short delay
-            setTimeout(makeAIMove, 500);
+            setTimeout(makeAIMove, 500); // Keep delay for PvE
         } else {
             currentPlayerSpan.textContent = `You (${playerColor === BLACK ? 'Black' : 'White'})`;
             currentPlayerSpan.style.color = playerColor === BLACK ? 'black' : 'darkred';
@@ -232,19 +250,19 @@ function checkWin(row, col) {
 function makeAIMove() {
     if (gameOver || !isAITurn) return;
 
-    const bestMove = findBestMove();
-
+    // In PvE, aiPlayer is the AI, playerColor is the human
+    const bestMove = findBestMove(aiPlayer, playerColor);
     if (bestMove) {
         makeMove(bestMove.row, bestMove.col, aiPlayer);
     } else {
-        // Fallback: place randomly if no good move found (shouldn't happen ideally)
+        // Fallback: place randomly if no good move found
         const emptyCells = getEmptyCells();
         if (emptyCells.length > 0) {
             const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            makeMove(randomCell.row, randomCell.col, aiPlayer);
+            makeMove(randomCell.row, randomCell.col, aiPlayer); // Use normal makeMove for PvE
         } else {
-            // Draw condition (board full) - can be handled more formally
-            console.log("Draw?");
+            // Draw condition
+            console.log("PvE Draw?");
             gameOver = true;
             winnerMessageP.textContent = "It's a Draw!";
             winnerMessageP.style.color = 'blue';
@@ -265,7 +283,7 @@ function getEmptyCells() {
     return cells;
 }
 
-function findBestMove() {
+function findBestMove(playerMakingMove, opponent) {
     const emptyCells = getEmptyCells();
     let bestScore = -Infinity;
     let move = null;
@@ -274,17 +292,20 @@ function findBestMove() {
     emptyCells.sort(() => Math.random() - 0.5);
 
     for (const cell of emptyCells) {
-        // Simulate placing AI piece
-        board[cell.row][cell.col] = aiPlayer;
-        let score = evaluateBoard(aiPlayer) - evaluateBoard(playerColor) * 1.1; // Prioritize blocking slightly
-        // Check for immediate win
+        // Simulate placing playerMakingMove piece
+        board[cell.row][cell.col] = playerMakingMove;
+        // Calculate score based on player's potential minus opponent's potential
+        // The high scores from scorePattern handle immediate threats implicitly.
+        let score = evaluateBoard(playerMakingMove) - evaluateBoard(opponent);
+        // Check for immediate win for playerMakingMove
         if (checkWin(cell.row, cell.col)) {
              score += 100000; // High score for winning move
         }
         board[cell.row][cell.col] = EMPTY; // Undo simulation
 
          // Simulate placing Player piece to check for immediate block necessity
-        board[cell.row][cell.col] = playerColor;
+        // Simulate placing opponent piece to check for immediate block necessity
+        board[cell.row][cell.col] = opponent;
         if (checkWin(cell.row, cell.col)) {
             score += 50000; // High score for blocking opponent's win
         }
@@ -346,7 +367,7 @@ function evaluateCell(row, col, player, opponent) {
      return cellScore;
 }
 
-// Scores a 5-cell window
+// Scores a 5-cell window based on the player's perspective
 function scorePattern(window, player, opponent) {
     let playerCount = 0;
     let opponentCount = 0;
@@ -356,23 +377,106 @@ function scorePattern(window, player, opponent) {
         if (cell === player) playerCount++;
         else if (cell === opponent) opponentCount++;
         else if (cell === EMPTY) emptyCount++;
-        // Ignore -1 (out of bounds) for scoring patterns within the board
+        // Ignore -1 (out of bounds)
     }
 
-    // Basic scoring - needs refinement for better AI
-    if (playerCount === 5) return 100000; // Win
-    if (playerCount === 4 && emptyCount === 1) return 5000;  // Open 4
-    if (playerCount === 3 && emptyCount === 2) return 500;   // Open 3
-    if (playerCount === 2 && emptyCount === 3) return 50;    // Open 2
+    // If opponent has any piece in the window, this pattern is blocked for the player
+    if (opponentCount > 0) return 0;
 
-    // Defensive scores (blocking opponent) - apply these when evaluating opponent's potential
-    // These scores are added in findBestMove when simulating opponent's potential win
-    // if (opponentCount === 4 && emptyCount === 1) return 50000; // Block opponent's Open 4 (handled in findBestMove)
-    // if (opponentCount === 3 && emptyCount === 2) return 400;   // Block opponent's Open 3
-
-    return playerCount; // Simple score for fewer pieces
+    // Assign scores based on player's pieces and empty slots
+    switch (playerCount) {
+        case 5:
+            return 1000000; // Five in a row (win)
+        case 4:
+            if (emptyCount === 1) return 50000; // Live Four (almost guaranteed win)
+            // Dead Four (blocked on one side) is implicitly handled by the opponentCount check above
+            break;
+        case 3:
+            if (emptyCount === 2) return 1000;  // Live Three
+            break; // Ignore dead threes for now
+        case 2:
+            if (emptyCount === 3) return 100;   // Live Two
+            break;
+        case 1:
+             if (emptyCount === 4) return 10;    // Live One
+             break;
+        default:
+            return 0;
+    }
+    return 0; // Default score if no valuable pattern found
 }
 
+// --- AI vs AI Game Visualization ---
+
+function makeAiVsAiMove() {
+    if (gameOver || !isAiVsAiMode) {
+         if (aiVsAiInterval) clearInterval(aiVsAiInterval); // Stop loop if game ended elsewhere
+         aiVsAiInterval = null;
+         isAiVsAiMode = false;
+         // Re-enable buttons if stopped prematurely
+         restartButton.disabled = false;
+         trainAIButton.disabled = false;
+         gameModeSelect.disabled = false;
+         playerColorSelect.disabled = false;
+         return;
+    }
+
+    const player = currentPlayer;
+    const opponent = (player === BLACK) ? WHITE : BLACK;
+
+    const bestMove = findBestMove(player, opponent);
+
+    if (bestMove) {
+        makeMove(bestMove.row, bestMove.col, player, true); // Pass true for isAiVsAi
+    } else {
+        // Draw condition
+        console.log("AI vs AI Draw?");
+        gameOver = true;
+        winnerMessageP.textContent = "It's a Draw!";
+        winnerMessageP.style.color = 'blue';
+        winnerMessageP.classList.remove('hidden');
+        if (aiVsAiInterval) clearInterval(aiVsAiInterval);
+        aiVsAiInterval = null;
+        isAiVsAiMode = false;
+         // Re-enable buttons on draw
+         restartButton.disabled = false;
+         trainAIButton.disabled = false;
+         gameModeSelect.disabled = false;
+         playerColorSelect.disabled = false;
+    }
+
+     // If game ended after the move, stop the interval
+     if (gameOver) {
+         if (aiVsAiInterval) clearInterval(aiVsAiInterval);
+         aiVsAiInterval = null;
+         isAiVsAiMode = false;
+         // Re-enable buttons on win
+         restartButton.disabled = false;
+         trainAIButton.disabled = false;
+         gameModeSelect.disabled = false;
+         playerColorSelect.disabled = false;
+     }
+}
+
+function startAIVsAIGame() {
+    console.log("Starting AI vs AI game...");
+    initializeBoard(); // Reset board and stop previous loops
+    isAiVsAiMode = true; // Set the flag
+    gameModeSelect.value = 'pvp'; // Visually reset dropdown, though mode is controlled by isAiVsAiMode
+    playerColorSelectionDiv.classList.add('hidden');
+    trainingProgressP.textContent = "AI vs AI game in progress...";
+    trainingProgressP.classList.remove('hidden');
+
+    // Disable buttons during AI vs AI game
+    restartButton.disabled = true; // Disable restart during auto-play
+    trainAIButton.disabled = true;
+    gameModeSelect.disabled = true;
+    playerColorSelect.disabled = true;
+
+
+    // Start the game loop with a delay between moves
+    aiVsAiInterval = setInterval(makeAiVsAiMove, 750); // Adjust delay (ms) as needed
+}
 
 // --- Event Listeners ---
 
@@ -380,6 +484,8 @@ canvas.addEventListener('click', handleBoardClick);
 restartButton.addEventListener('click', initializeBoard);
 gameModeSelect.addEventListener('change', initializeBoard);
 playerColorSelect.addEventListener('change', initializeBoard);
+// Change the button to start the AI vs AI visualization
+trainAIButton.addEventListener('click', startAIVsAIGame);
 
 // --- Initial Game Start ---
 initializeBoard();

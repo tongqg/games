@@ -37,3 +37,12 @@ This document outlines the requirements for a web-based Gomoku (Five-in-a-Row) g
 - Different board sizes.
 - Piece capture (Renju rules).
 - Score tracking.
+
+## 6. AI Training Requirements
+- **Training Mechanism:** Implement a mechanism to train the AI opponent. This could involve:
+    - **Self-Play:** The AI plays against itself repeatedly to learn optimal strategies.
+    - **Reinforcement Learning:** Use algorithms like Q-learning or similar techniques where the AI learns from rewards based on game outcomes.
+- **Training Initiation:** Provide a way to start the AI training process (e.g., a button in the UI, a specific command).
+- **Training Progress/Feedback:** (Optional) Display some indication of the training progress or the AI's improving strength.
+- **Model Persistence:** (Optional) Allow saving the trained AI model state so it doesn't need retraining every time the page loads.
+- **Integration:** The trained AI should be usable in the Player vs. AI (PvE) mode.

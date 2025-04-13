@@ -4,7 +4,8 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 let scene, camera, renderer, controls;
 let plane, gridHelper;
-const objects = []; // To store placed bricks and the plane
+const objects = []; // To store placed bricks and the plane for raycasting
+const placedBricksHistory = []; // To store placed bricks for undo functionality
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let ghostBrick = null; // To hold the preview mesh
@@ -34,6 +35,7 @@ const planeSize = gridSize * unitSize;
 const container = document.getElementById('container');
 const brickLibrary = document.getElementById('brick-library'); // Added
 const colorPalette = document.getElementById('color-palette'); // Added
+const undoButton = document.getElementById('undo-button'); // Added for undo
 
 // --- State ---
 let selectedBrickType = '1x2'; // Default selection, Updated default
@@ -251,7 +253,15 @@ function init() {
     } else {
         console.error("Joystick visualizer element not found!");
     }
- 
+
+    // --- Add Undo Button Listener --- Added
+    if (undoButton) {
+        undoButton.addEventListener('click', undoLastBrick);
+    } else {
+        console.error("Undo button element not found!");
+    }
+    // --- End Undo Button Listener ---
+
     console.log("Initialization complete.");
 }
 
@@ -760,8 +770,38 @@ function placeBrick(position, targetBaseY) {
 
     scene.add(brick);
     objects.push(brick); // Add brick for future raycasting
+    placedBricksHistory.push(brick); // Add to history for undo
 }
+// --- Function to undo the last placed brick --- Added
+function undoLastBrick() {
+    if (placedBricksHistory.length === 0) {
+        console.log("No bricks to undo.");
+        return;
+    }
 
+    const lastBrick = placedBricksHistory.pop(); // Remove from history
+
+    // Remove from scene
+    scene.remove(lastBrick);
+
+    // Remove from raycasting objects array
+    const indexInObjects = objects.indexOf(lastBrick);
+    if (indexInObjects > -1) {
+        objects.splice(indexInObjects, 1);
+    }
+
+    // Optional: Dispose geometry and material if needed for memory management
+    // Note: Be careful with disposing if geometries/materials are shared or reused.
+    // In this simple case, assuming unique instances per placed brick.
+    if (lastBrick.geometry) lastBrick.geometry.dispose();
+    if (lastBrick.material) lastBrick.material.dispose();
+
+    console.log("Undid last brick placement.");
+    // No need to update ghost brick here, it updates on mouse move
+}
+// --- End Undo Function ---
+
+// --- Virtual Joystick Event Handlers --- Added
 // --- Virtual Joystick Event Handlers --- Added
 
 function getPointerPosition(event) {
