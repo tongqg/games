@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "vite --host --port=8000"
+    "start": "vite --host --port=8000",
+    "dev": "vite --host --port=8000"
   },
   "devDependencies": {
     "vite": "^5.2.12",
